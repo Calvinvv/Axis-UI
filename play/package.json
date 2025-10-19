@@ -1,0 +1,16 @@
+{
+  "name": "@axis-ui/play",
+  "private": true,
+  "description": "",
+  "scripts": {
+    "dev": "vite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "vite": "^7.1.10"
+  }
+}

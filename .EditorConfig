@@ -1,0 +1,36 @@
+# https://EditorConfig.org
+#
+# 这是项目的“单一事实来源”，用于定义基础排版规则。
+# Prettier 和编辑器都会读取此文件。
+
+# 标记为根文件，编辑器将不再向上层目录查找
+root = true
+
+# [*] 表示匹配所有文件
+[*]
+# 缩进风格：space (对应 Prettier 的 "useTabs": false)
+indent_style = space
+
+# 缩进大小：2 (对应 Prettier 的 "tabWidth": 2)
+indent_size = 2
+
+# 最大行长：80 (对应 Prettier 的 "printWidth": 80)
+max_line_length = 80
+
+# 换行符：lf (Prettier 默认值，保证跨平台一致性)
+end_of_line = lf
+
+# 字符集：utf-8 (标准实践，避免乱码)
+charset = utf-8
+
+# 去除行尾多余的空格
+trim_trailing_whitespace = true
+
+# 在文件末尾保留一个空行
+insert_final_newline = true
+
+# [*.md] 表示仅匹配 Markdown 文件
+# !!! 这是一个非常好的配置，应该保留 !!!
+[*.md]
+# Markdown 文件中，行尾空格有用（用于换行），不应自动删除
+trim_trailing_whitespace = false
