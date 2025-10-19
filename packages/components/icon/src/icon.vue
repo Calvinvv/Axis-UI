@@ -8,7 +8,7 @@
 import { defineComponent, computed } from 'vue'
 import { iconProps } from './icon'
 export default defineComponent({
-  name: 'axisIcon',
+  name: 'AxIcon',
   props: iconProps,
   setup(props) {
     const style = computed(() => {

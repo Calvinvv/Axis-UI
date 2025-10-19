@@ -11,6 +11,9 @@
   "packageManager": "pnpm@10.18.3",
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
-    "vite": "^7.1.10"
+    "vite": "^7.1.10",
+    "@axis-ui/theme-chalk": "workspace:*",
+    "@axis-ui/utils": "workspace:*",
+    "@axis-ui/components": "workspace:*"
   }
 }

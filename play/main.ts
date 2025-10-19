@@ -1,9 +1,9 @@
 import { createApp } from 'vue'
 import App from './app.vue'
-import axisIcon from '../packages/components/icon'
-
+import AxIcon from '../packages/components/icon'
+import '@axis-ui/theme-chalk/src/index.scss'
 const app = createApp(App)
 
-app.use(axisIcon)
+app.use(AxIcon)
 
 app.mount('#app')

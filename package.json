@@ -2,13 +2,15 @@
   "private": true,
   "scripts": {
     "dev": "pnpm -C play dev",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "packageManager": "pnpm@10.18.3",
   "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
     "@eslint/css": "^0.13.0",
     "@eslint/js": "^9.38.0",
     "@eslint/json": "^0.13.2",
@@ -21,6 +23,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.4",
     "prettier": "^3.6.2",
+    "sass": "^1.93.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.1",
     "vue": "^3.5.22"
