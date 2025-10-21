@@ -1,19 +1,20 @@
 {
   "private": true,
-  "scripts": {
-    "dev": "pnpm -C play dev",
-    "prepare": "husky"
-  },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "packageManager": "pnpm@10.18.3",
+  "scripts": {
+    "dev": "pnpm -C play dev",
+    "prepare": "husky"
+  },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@eslint/css": "^0.13.0",
     "@eslint/js": "^9.38.0",
     "@eslint/json": "^0.13.2",
+    "@vitejs/plugin-vue": "^6.0.1",
     "@vue/eslint-config-typescript": "^14.6.0",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
@@ -26,7 +27,10 @@
     "sass": "^1.93.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.1",
-    "vue": "^3.5.22"
+    "vite": "^7.1.10",
+    "vite-plugin-dts": "^4.5.4",
+    "vue": "^3.5.22",
+    "vue-tsc": "^3.1.1"
   },
   "lint-staged": {
     "*.{js,ts,vue,jsx,tsx}": [
