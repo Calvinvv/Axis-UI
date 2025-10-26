@@ -1,17 +1,9 @@
 {
   "name": "@axis-ui/utils",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.18.3",
-  "dependencies": {
-    "@axis-ui/components": "workspace:*",
-    "@axis-ui/theme-chalk": "workspace:*"
-  }
+  "description": "Axis-UI internal utilities (workspace only)",
+  "private": true,
+  "main": "with-install.ts",
+  "author": "韦贺文",
+  "license": "MIT"
 }

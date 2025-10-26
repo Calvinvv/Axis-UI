@@ -20,7 +20,17 @@
     "forceConsistentCasingInFileNames": true, // 强制区分大小写
     "resolveJsonModule": true, // 解析JSON模块
     "strict": true, // 是否启动严格模式
-    "skipLibCheck": true // 跳过类库检测
+    "skipLibCheck": true, // 跳过类库检测
+    // {{ AURA-X: Add - 添加路径映射，解决开发环境下找不到 axis-ui 模块的类型声明问题. Approval: 寸止 }}
+    //这是 monorepo 开发的标准实践，不会污染项目：
+    // Path Mapping 是 TypeScript 官方推荐的解决方案，专门用于 monorepo 和本地包开发
+    // 仅影响开发环境：构建后的包仍然按照 package.json 中的 types 字段正常工作
+    // 清晰的关注点分离：
+    // 开发时：通过 paths 映射到源码
+    // 生产时：通过 dist/types/index.d.ts 提供类型
+    "paths": {
+      "axis-ui": ["./packages/components/index.ts"]
+    }
   },
   "exclude": [
     // 排除掉哪些类库

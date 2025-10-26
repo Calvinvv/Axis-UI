@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 import App from './app.vue'
-import AxIcon from '../packages/components/icon'
-import '@axis-ui/theme-chalk/src/index.scss'
+import AxIcon from 'axis-ui'
+
+// {{ AURA-X: Delete - 移除手动样式引入，样式已在组件入口自动导入. Approval: 寸止 }}
 const app = createApp(App)
 
 app.use(AxIcon)

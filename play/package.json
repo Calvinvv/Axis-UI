@@ -14,6 +14,6 @@
     "vite": "^7.1.10",
     "@axis-ui/theme-chalk": "workspace:*",
     "@axis-ui/utils": "workspace:*",
-    "@axis-ui/components": "workspace:*"
+    "axis-ui": "workspace:*"
   }
 }

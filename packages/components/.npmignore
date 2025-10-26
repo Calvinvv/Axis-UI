@@ -1,0 +1,48 @@
+# {{ AURA-X: Create - 创建 .npmignore，仅发布必要文件到 npm }}
+
+# 源代码（仅发布构建产物）
+icon/
+src/
+*.ts
+!*.d.ts
+
+# 配置文件
+vite.config.ts
+tsconfig.json
+.editorconfig
+.prettierrc.json
+eslint.config.mjs
+commitlint.config.js
+
+# Git 相关
+.git/
+.gitignore
+.gitattributes
+.husky/
+
+# 文档（README 和 CHANGELOG 会保留）
+*.md
+!README.md
+!CHANGELOG.md
+
+# 测试和示例
+play/
+__tests__/
+**/*.spec.ts
+**/*.test.ts
+
+# 依赖和锁文件
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+.npmrc
+
+# 其他
+.DS_Store
+*.log
+.vscode/
+.idea/
+coverage/
+.cunzhi-memory/
+
