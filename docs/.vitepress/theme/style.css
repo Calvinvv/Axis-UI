@@ -1,0 +1,50 @@
+/* 自定义主题样式 */
+:root {
+  --vp-c-brand: #3b82f6;
+  --vp-c-brand-light: #60a5fa;
+  --vp-c-brand-lighter: #93c5fd;
+  --vp-c-brand-lightest: #dbeafe;
+  --vp-c-brand-dark: #2563eb;
+  --vp-c-brand-darker: #1d4ed8;
+  --vp-c-brand-dimm: #1e40af;
+}
+
+/* 演示组件样式 */
+.demo-container {
+  margin: 1rem 0;
+  padding: 1.5rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+}
+
+.demo-container h3 {
+  margin: 0 0 1rem 0;
+  color: var(--vp-c-text-1);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* 代码块样式增强 */
+.vp-doc div[class*='language-'] {
+  margin: 1rem 0;
+}
+
+/* 表格样式 */
+.vp-doc table {
+  margin: 1rem 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.vp-doc th,
+.vp-doc td {
+  border: 1px solid var(--vp-c-divider);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.vp-doc th {
+  background: var(--vp-c-bg-soft);
+  font-weight: 600;
+}

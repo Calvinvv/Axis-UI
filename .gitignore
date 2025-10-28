@@ -42,3 +42,7 @@ coverage/
 # {{ AURA-X: Add - 忽略构建产物和包文件 }}
 # npm 包文件
 *.tgz
+
+# VitePress build output
+docs/.vitepress/dist/
+docs/.vitepress/cache/

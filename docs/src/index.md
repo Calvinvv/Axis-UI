@@ -1,0 +1,27 @@
+---
+
+layout: home
+
+hero:
+name: "Axis-UI"
+text: "现代化 Vue 3 组件库"
+tagline: "基于 TypeScript + Vite 构建，提供完整的 TDD 开发体验"
+actions:
+- theme: brand
+  text: 快速开始
+  link: /guide/getting-started
+- theme: alt
+  text: 查看组件
+  link: /components/
+
+features:
+
+- icon: 🚀
+  title: 现代化架构
+  details: 基于 Vue 3 + TypeScript + Vite 构建，支持 Tree Shaking 和按需引入
+- icon: 🧪
+  title: TDD 开发
+  details: 完整的测试驱动开发环境，支持单元测试、快照测试和覆盖率报告
+- icon: 📚
+  title: 完善文档
+  details: 基于 VitePress 的文档站点，提供实时预览和 API 示例
