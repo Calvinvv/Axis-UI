@@ -1,5 +1,3 @@
-# .github/workflows/ci.yml
-
 name: Test, Build and Deploy
 
 on:
@@ -83,7 +81,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # ... (build components, build docs, upload-artifact... 保持不变)
+      # ... (build components, build docs... 保持不变)
       - name: Build components
         run: pnpm -C packages/components build
       - name: Build docs
@@ -98,7 +96,7 @@ jobs:
           retention-days: 7
 
   # ===============================================
-  # 3. 部署任务 (Deploy Job) - (这个任务不使用 pnpm，保持不变)
+  # 3. 部署任务 (Deploy Job) - 修改为直接使用 GitHub Actions 部署到 Pages
   # ===============================================
   deploy-docs:
     name: Deploy Docs to GitHub Pages
@@ -106,22 +104,28 @@ jobs:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
-      contents: write
       pages: write
       id-token: write
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
+    steps:
       - name: Download docs artifact
         uses: actions/download-artifact@v4
         with:
           name: build-files
           path: ./build-output
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: ./build-output/docs/.vitepress/dist/
-          branch: gh-pages
+          path: ./build-output/docs/.vitepress/dist/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
