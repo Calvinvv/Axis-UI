@@ -1,6 +1,14 @@
 import { withInstall } from '@axis-ui/utils/with-install'
-import Icon from './src/icon.vue'
+import _Icon from './src/icon.vue'
 
-const AxIcon = withInstall(Icon as typeof Icon & { name: string })
+const Icon = withInstall(_Icon)
 
-export default AxIcon
+export default Icon
+
+//引用模板后有组件注释了
+declare module 'vue' {
+  export interface GlobalComponents {
+    //我们的接口合并到全局组件
+    AxIcon: typeof Icon
+  }
+}

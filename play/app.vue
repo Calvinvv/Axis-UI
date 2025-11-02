@@ -1,4 +1,5 @@
 <template>
-  123asd
-  <AxIcon color="red" size="60" class="ax-icon-shuju">red</AxIcon>
+  <ax-icon :color="'blue'" :size="90" class="ax-icon-shuju"></ax-icon>
+
+  <ax-tree></ax-tree>
 </template>

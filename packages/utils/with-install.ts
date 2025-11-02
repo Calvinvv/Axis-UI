@@ -1,12 +1,9 @@
-import type { App, Plugin, Component } from 'vue'
-
-//以下类型必须导出，否则生成不了.d.ts文件
+import { Plugin } from 'vue'
 export type SFCWithInstall<T> = T & Plugin
-
-export const withInstall = <T extends Component & { name: string }>(comp: T) => {
-  ;(comp as SFCWithInstall<T>).install = function (app: App) {
-    app.component(comp.name, comp)
+export function withInstall<T>(comp: T) {
+  ;(comp as SFCWithInstall<T>).install = function (app) {
+    const { name } = comp as unknown as { name: string }
+    app.component(name, comp) // 将组件注册成全局的组件
   }
   return comp as SFCWithInstall<T>
 }
-
