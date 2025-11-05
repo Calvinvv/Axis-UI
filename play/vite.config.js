@@ -24,6 +24,7 @@ export default defineConfig({
         IconsResolver({
           prefix: 'i', // 自动引入的图标组件前缀，默认为 'i'
           // enabledCollections: ['mdi'] // 指定自动导入的图标集，减少搜索性能（可选）
+          alias: name => name.replace(':', '-'),
         }),
       ],
     }),

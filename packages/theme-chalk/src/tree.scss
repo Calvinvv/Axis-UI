@@ -1,0 +1,27 @@
+@use './mixins/mixins.scss' as *;
+
+@include b(tree) {
+  display: inline-block;
+  width: 100%;
+}
+
+@include b('tree-node') {
+  padding: 5px 0;
+  font-size: 16px;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  @include e('expand-icon') {
+    display: inline-block;
+    vertical-align: middle;
+    transform: rotate(0deg); //这个属性是为了让图标可以旋转，0deg表示不旋转
+    transition: transform 0.3s ease-in; //这个属性是为了让旋转有一个过渡效果
+    &.expanded {
+      transform: rotate(90deg); //当节点展开时，图标旋转90度
+    }
+
+    cursor: pointer;
+  }
+}
