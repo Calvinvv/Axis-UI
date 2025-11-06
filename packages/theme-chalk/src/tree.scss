@@ -18,10 +18,13 @@
     vertical-align: middle;
     transform: rotate(0deg); //这个属性是为了让图标可以旋转，0deg表示不旋转
     transition: transform 0.3s ease-in; //这个属性是为了让旋转有一个过渡效果
+    cursor: pointer;
     &.expanded {
       transform: rotate(90deg); //当节点展开时，图标旋转90度
     }
-
-    cursor: pointer;
+    &.is-leaf {
+      visibility: hidden;
+      cursor: default;
+    }
   }
 }

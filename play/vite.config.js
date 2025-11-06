@@ -16,15 +16,13 @@ export default defineConfig({
     Icons({
       autoInstall: true, // 自动安装需要的图标库 (建议开启)
       compiler: 'vue3', // 指定编译器，默认为 'vue3'
-      scale: 1, // 图标缩放，默认为 1
     }),
     Components({
+      dts: false,
       resolvers: [
         // 自动注册图标组件
         IconsResolver({
           prefix: 'i', // 自动引入的图标组件前缀，默认为 'i'
-          // enabledCollections: ['mdi'] // 指定自动导入的图标集，减少搜索性能（可选）
-          alias: name => name.replace(':', '-'),
         }),
       ],
     }),

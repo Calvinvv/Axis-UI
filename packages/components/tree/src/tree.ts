@@ -40,7 +40,6 @@ export const treeProps = {
   },
 } as const //只读
 
-export type TreeProps = Partial<ExtractPropTypes<typeof treeProps>>
 
 export const treeNodeProps = {
   node: {
@@ -52,3 +51,10 @@ export const treeNodeProps = {
     required: true,
   },
 } as const
+
+export type TreeProps = Partial<ExtractPropTypes<typeof treeProps>>
+export type TreeNodeProps = Partial<ExtractPropTypes<typeof treeNodeProps>>
+
+export const treeNodeEmits = {
+  toggle: (node: TreeNode) => node,
+}

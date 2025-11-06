@@ -4,7 +4,7 @@
   "author": "",
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "pnpm@10.20.0",
   "scripts": {
     "dev": "pnpm -C play dev",
     "lint": "eslint",

@@ -2,7 +2,13 @@
   <div :class="bem.b()">
     <!-- 模版有自带的优化，如果自定义比较强的我们采用tsx来编写 -->
 
-    <AxTreeNode v-for="node in flattenTree" :key="node.key" :node="node" :expanded="isExpanded(node)">
+    <AxTreeNode
+      v-for="node in flattenTree"
+      :key="node.key"
+      :node="node"
+      :expanded="isExpanded(node)"
+      @toggle="toggleExpand"
+    >
     </AxTreeNode>
   </div>
 </template>
@@ -66,7 +72,7 @@ function createTree(data: TreeOption[]) {
         children: [], // 默认为空
         rawNode: node,
         level: parent ? parent.level + 1 : 0,
-        isLeaf: node.isLeaf ?? children.length === 0,//如果没有传入isLeaf，则根据children数判断，增强代码健壮性
+        isLeaf: node.isLeaf ?? children.length === 0, //如果没有传入isLeaf，则根据children数判断，增强代码健壮性
       }
       if (children.length > 0) {
         // 有孩子再去递归孩子，将其格式化成treeNode类型
@@ -127,5 +133,22 @@ function isExpanded(node: TreeNode): boolean {
   return expandedKeysSet.value.has(node.key)
 }
 
+//折叠
+function collpase(node: TreeNode) {
+  expandedKeysSet.value.delete(node.key)
+}
+//展开
+function expand(node: TreeNode) {
+  expandedKeysSet.value.add(node.key)
+}
 
+//切换展开
+function toggleExpand(node: TreeNode) {
+  const expandKeys = expandedKeysSet.value
+  if (expandKeys.has(node.key)) {
+    collpase(node)
+  } else {
+    expand(node)
+  }
+}
 </script>
