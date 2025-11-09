@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { TreeNode, TreeOption, treeProps } from './tree'
+import { Key, TreeNode, TreeOption, treeProps } from './tree'
 import { computed, ref, watch } from 'vue'
 import AxTreeNode from './treeNode.vue'
 import { createNamespace } from '@axis-ui/utils/create'
@@ -26,10 +26,22 @@ defineOptions({
 //后续使用watch监听props.data变化，更新tree
 const props = defineProps(treeProps)
 
+/**
+data:
+[
+  { id: '1', name: 'Node 1', children: [ ... ] },
+  { id: '2', name: 'Node 2', children: [] }
+]
+
+key-field="id"
+label-field="name"
+children-field="children"
+ */
+
 // 我们将props.data 格式化后放到tree中
 const tree = ref<TreeNode[]>([])
 
-//用来绑定data中被当做key、label、children的字段
+//1.用来绑定data中被当做key、label、children的字段
 function createOptions(key: string, label: string, children: string) {
   return {
     getKey(node: TreeOption) {
@@ -49,20 +61,8 @@ const treeOptions = createOptions(
   props.childrenField
 )
 
-/**
-data:
-[
-  { id: '1', name: 'Node 1', children: [ ... ] },
-  { id: '2', name: 'Node 2', children: [] }
-]
-
-key-field="id"
-label-field="name"
-children-field="children"
- */
-
-//负责构建树结构，通过map遍历所有
-function createTree(data: TreeOption[]) {
+//2.将用户传递的数据格式化成TreeNode类型
+function createTree(data: TreeOption[], parent: TreeNode | null = null) {
   function traversal(data: TreeOption[], parent: TreeNode | null = null) {
     return data.map(node => {
       const children = treeOptions.getChildren(node) || []
@@ -82,7 +82,7 @@ function createTree(data: TreeOption[]) {
     })
   }
 
-  const result: TreeNode[] = traversal(data)
+  const result: TreeNode[] = traversal(data, parent)
   return result
 }
 
@@ -95,11 +95,9 @@ watch(
   { immediate: true }
 )
 
-//处理拍平
-
 //需要展开的key有哪些
 const expandedKeysSet = ref(new Set(props.defaultExpandedKeys))
-
+//3.拍平树结构，为了后续渲染节点。这里需要依赖当前展开的节点
 const flattenTree = computed(() => {
   const expandedKeys = expandedKeysSet.value //要展开的key集合
 
@@ -137,12 +135,42 @@ function isExpanded(node: TreeNode): boolean {
 function collpase(node: TreeNode) {
   expandedKeysSet.value.delete(node.key)
 }
+
+const loadingKeysRef = ref(new Set<Key>())
+
+function triggerLoading(node: TreeNode) {
+  //通过节点状态，判断该节点是否需要进行异步加载
+  if (!node.children.length && !node.isLeaf) {
+    //如果没有孩子且不是叶子节点，说明需要异步加载
+    //防止重复加载
+    const loadingKeys = loadingKeysRef.value //loadingKeys为正在加载的key集合
+    if (!loadingKeys.has(node.key)) {
+      loadingKeys.add(node.key)
+
+      //调用用户传递的onLoad函数
+      if (props.onLoad) {
+        props.onLoad(node.rawNode).then(children => {
+          //调用onLoad函数，传递当前节点的原始数据,children来自于onLoad的返回值
+          //1. 将异步加载的子节点数据保存到原始节点
+          node.rawNode.children = children
+          // 2. 将子节点数据转换为树形结构
+          node.children = createTree(children, node)
+          loadingKeys.delete(node.key)
+        })
+      }
+    }
+  }
+}
+
 //展开
 function expand(node: TreeNode) {
   expandedKeysSet.value.add(node.key)
+
+  //调用或判断是否进行加载逻辑
+  triggerLoading(node)
 }
 
-//切换展开
+//4.让用户点击展开
 function toggleExpand(node: TreeNode) {
   const expandKeys = expandedKeysSet.value
   if (expandKeys.has(node.key)) {

@@ -11,3 +11,5 @@ declare module 'vue' {
     AxTree: typeof _Tree
   }
 }
+
+export * from './src/tree' //使用这个组件的开发者可以从包的入口直接导入所有需要的类型
