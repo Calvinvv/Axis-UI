@@ -7,6 +7,7 @@
       :key="node.key"
       :node="node"
       :expanded="isExpanded(node)"
+      :loadingKeys="loadingKeysRef"
       @toggle="toggleExpand"
     >
     </AxTreeNode>

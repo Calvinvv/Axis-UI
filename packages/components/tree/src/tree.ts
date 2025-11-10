@@ -50,6 +50,9 @@ export const treeNodeProps = {//treeNodeProps是树节点组件的props定义
     type: Boolean,
     required: true,
   },
+  loadingKeys:{
+    type:Object as PropType<Set<Key>>
+  }
 } as const
 
 export type TreeProps = Partial<ExtractPropTypes<typeof treeProps>>
