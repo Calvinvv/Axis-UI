@@ -9,13 +9,15 @@
       :expanded="isExpanded(node)"
       :loadingKeys="loadingKeysRef"
       @toggle="toggleExpand"
+      :selectedKeys="selectKeysRef"
+      @select="handleSelect"
     >
     </AxTreeNode>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Key, TreeNode, TreeOption, treeProps } from './tree'
+import { Key, treeEmits, TreeNode, TreeOption, treeProps } from './tree'
 import { computed, ref, watch } from 'vue'
 import AxTreeNode from './treeNode.vue'
 import { createNamespace } from '@axis-ui/utils/create'
@@ -179,5 +181,45 @@ function toggleExpand(node: TreeNode) {
   } else {
     expand(node)
   }
+}
+
+//5. 实现选中节点
+const emit = defineEmits(treeEmits)
+
+const selectKeysRef = ref<Key[]>([])
+
+watch(
+  () => props.selectedKeys, //监听数据源（函数形式）
+  value => {
+    //value就是传入的新props.selectedKeys的值
+    if (value) {
+      selectKeysRef.value = value
+    }
+  },
+  {
+    immediate: true, //在组件创建时立即执行一次
+  }
+)
+
+function handleSelect(node: TreeNode) {
+  let keys = Array.from(selectKeysRef.value)
+
+  if (!props.selectable) return
+
+  if (props.multiple) {
+    const index = keys.findIndex(key => key === node.key) //key是keys 数组中当前被遍历到的元素
+    if (index > -1) {
+      keys.splice(index, 1) //从 index 位置开始，删除 1 个元素
+    } else {
+      keys.push(node.key)
+    }
+  } else {
+    if (keys.includes(node.key)) {
+      keys = []
+    } else {
+      keys = [node.key]
+    }
+  }
+  emit('update:selectedKeys', keys)
 }
 </script>

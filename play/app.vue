@@ -1,20 +1,42 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TreeOption } from '../packages/components/tree'
-function createData() {
-  return [
-    {
-      label: nextLabel(),
-      key: 1,
-      isLeaf: false,
-    },
-    {
-      label: nextLabel(),
-      key: 2,
-      isLeaf: false,
-    },
-  ]
+import { Key, TreeOption } from '../packages/components/tree'
+
+function createData(level = 4, parentKey = '') {
+  if (!level) return []
+  const arr = new Array(6 - level).fill(0)
+  return arr.map((_, idx: number) => {
+    const key = parentKey + level + idx
+    return {
+      label: createLabel(level), // 显示的内容
+      key, // 为了唯一性
+      children: createData(level - 1, key), // 孩子
+    }
+  })
 }
+
+function createLabel(level: number): string {
+  if (level === 4) return '道生一'
+  if (level === 3) return '一生二'
+  if (level === 2) return '二生三'
+  if (level === 1) return '三生万物'
+  return ''
+}
+
+// function createData() {
+//   return [
+//     {
+//       label: nextLabel(),
+//       key: 1,
+//       isLeaf: false,
+//     },
+//     {
+//       label: nextLabel(),
+//       key: 2,
+//       isLeaf: false,
+//     },
+//   ]
+// }
 
 function nextLabel(currentLabel?: string | number): string {
   if (!currentLabel) return 'Out of Tao, One is born'
@@ -31,7 +53,8 @@ function nextLabel(currentLabel?: string | number): string {
 
 const data = ref(createData())
 
-const handleLoad = (node: TreeOption) => {//当用户需要异步获取时，会传入孩子树不为零也不是，:on-load属性,并配套函数
+const handleLoad = (node: TreeOption) => {
+  //当用户需要异步获取时，会传入孩子树不为零也不是，:on-load属性,并配套函数
   return new Promise<TreeOption[]>(resolve => {
     setTimeout(() => {
       resolve([
@@ -45,6 +68,8 @@ const handleLoad = (node: TreeOption) => {//当用户需要异步获取时，会
     }, 500)
   })
 }
+
+const value = ref<Key[]>([])
 </script>
 <template>
   <ax-icon :size="160" :color="'red'">
@@ -53,5 +78,13 @@ const handleLoad = (node: TreeOption) => {//当用户需要异步获取时，会
   <ax-icon :size="160" :color="'red'">
     <i-codex:checklist></i-codex:checklist>
   </ax-icon>
-  <ax-tree :data="data" :on-load="handleLoad"></ax-tree>
+  <ax-tree
+    :data="data"
+    :on-load="handleLoad"
+    v-model:selected-keys="value"
+    selectabal
+    multiple
+  ></ax-tree>
+  <!--selectabal:可以选择节点     multiple：可以多选节点
+     selected-keys：选中后的节点-->
 </template>

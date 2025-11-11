@@ -27,4 +27,15 @@
       cursor: default;
     }
   }
+
+  @include when(selected) {
+    background-color: #e6f7ff;
+  }
+  @include e('content') {
+    display: flex;
+  }
+  @include e('label') {
+    cursor: pointer;
+    flex: 1;
+  }
 }
