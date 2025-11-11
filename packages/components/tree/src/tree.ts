@@ -8,6 +8,7 @@ export interface TreeOption {
   key?: Key
   children?: TreeOption[]
   isLeaf?: boolean
+  disabled?: boolean
   [key: string]: unknown //任意接口
 }
 

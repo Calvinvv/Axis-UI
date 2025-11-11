@@ -75,6 +75,7 @@ function createTree(data: TreeOption[], parent: TreeNode | null = null) {
         children: [], // 默认为空
         rawNode: node,
         level: parent ? parent.level + 1 : 0,
+        disabled: !!node.disabled,
         isLeaf: node.isLeaf ?? children.length === 0, //如果没有传入isLeaf，则根据children数判断，增强代码健壮性
       }
       if (children.length > 0) {

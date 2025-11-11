@@ -1,5 +1,11 @@
 <template>
-  <div :class="[bem.b(), bem.is('selected', isSelected)]">
+  <div
+    :class="[
+      bem.b(),
+      bem.is('selected', isSelected),
+      bem.is('disabled', node.disabled),
+    ]"
+  >
     <div
       :class="[bem.e('content')]"
       :style="{ paddingLeft: `${node.level * 16}px` }"
@@ -47,6 +53,9 @@ const isSelected = computed(() => {
 })
 
 function handleSeleted() {
+  if (props.node.disabled) {
+    return
+  }
   emit('select', props.node)
 }
 </script>
