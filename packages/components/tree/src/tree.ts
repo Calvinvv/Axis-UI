@@ -2,7 +2,8 @@ import { ExtractPropTypes, PropType } from 'vue'
 
 export type Key = string | number
 
-export interface TreeOption {//TreeOption是用户传入的数据类型
+export interface TreeOption {
+  //TreeOption是用户传入的数据类型
   label?: Key
   key?: Key
   children?: TreeOption[]
@@ -10,14 +11,16 @@ export interface TreeOption {//TreeOption是用户传入的数据类型
   [key: string]: unknown //任意接口
 }
 
-export interface TreeNode extends Required<TreeOption> {//TreeNode是组件内部使用的数据类型
+export interface TreeNode extends Required<TreeOption> {
+  //TreeNode是组件内部使用的数据类型
   level: number
   rawNode: TreeOption
   children: TreeNode[]
   isLeaf: boolean
 }
 
-export const treeProps = {//treeProps是树组件的props定义
+export const treeProps = {
+  //treeProps是树组件的props定义
   data: {
     type: Array as PropType<TreeOption[]>,
     default: () => [], //默认空数组
@@ -41,7 +44,8 @@ export const treeProps = {//treeProps是树组件的props定义
   onLoad: Function as PropType<(node: TreeOption) => Promise<TreeOption[]>>,
 } as const //只读
 
-export const treeNodeProps = {//treeNodeProps是树节点组件的props定义
+export const treeNodeProps = {
+  //treeNodeProps是树节点组件的props定义
   node: {
     type: Object as PropType<TreeNode>,
     required: true,
@@ -50,9 +54,9 @@ export const treeNodeProps = {//treeNodeProps是树节点组件的props定义
     type: Boolean,
     required: true,
   },
-  loadingKeys:{
-    type:Object as PropType<Set<Key>>
-  }
+  loadingKeys: {
+    type: Object as PropType<Set<Key>>,
+  },
 } as const
 
 export type TreeProps = Partial<ExtractPropTypes<typeof treeProps>>

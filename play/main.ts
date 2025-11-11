@@ -1,8 +1,7 @@
 import { createApp } from 'vue'
 import App from './app.vue'
 
-import Icon from 'axis-ui'
-import Tree from 'axis-ui'
+import { Icon, Tree } from 'axis-ui'
 
 const app = createApp(App)
 
