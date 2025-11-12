@@ -1,4 +1,4 @@
-import { ExtractPropTypes, PropType } from 'vue'
+import { ExtractPropTypes, InjectionKey, PropType, SetupContext } from 'vue'
 
 export type Key = string | number
 
@@ -89,4 +89,18 @@ export const treeNodeEmits = {
 export const treeEmits = {
   //内部发射的事件用来同步响应式数据
   'update:selectedKeys': (keys: Key[]) => keys,
+}
+
+
+export interface TreeContext {
+  slots:SetupContext['slots'],
+}
+//此变量作为提供出去的属性
+export const treeInjectKey: InjectionKey<TreeContext> = Symbol()
+
+export const treeNodeContentProps = {
+  node:{
+    type: Object as PropType<TreeNode>,
+    required:true,
+  }
 }

@@ -25,17 +25,18 @@
           <i-codex:loader v-else></i-codex:loader>
         </ax-icon>
       </span>
-      <span @click="handleSeleted" :class="bem.e('label')">{{
-        node?.label
-      }}</span>
+      <span @click="handleSeleted" :class="bem.e('label')">
+        <AxTreeNodeContent :node="node"></AxTreeNodeContent>
+      </span>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { createNamespace } from '@axis-ui/utils/create'
-import { treeNodeEmits, treeNodeProps } from './tree'
-import { computed } from 'vue'
+import { treeInjectKey, treeNodeEmits, treeNodeProps } from './tree'
+import { computed, inject } from 'vue'
+import AxTreeNodeContent from './tree-node-content'
 const bem = createNamespace('tree-node')
 const props = defineProps(treeNodeProps)
 
@@ -58,4 +59,6 @@ function handleSeleted() {
   }
   emit('select', props.node)
 }
+
+inject(treeInjectKey)
 </script>

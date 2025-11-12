@@ -1,25 +1,35 @@
 <template>
   <div :class="bem.b()">
     <!-- 模版有自带的优化，如果自定义比较强的我们采用tsx来编写 -->
-
-    <AxTreeNode
-      v-for="node in flattenTree"
-      :key="node.key"
-      :node="node"
-      :expanded="isExpanded(node)"
-      :loadingKeys="loadingKeysRef"
-      @toggle="toggleExpand"
-      :selectedKeys="selectKeysRef"
-      @select="handleSelect"
-    >
-    </AxTreeNode>
+    <ax-virtual-list :items="flattenTree" :remain="8" :size="32">
+      <template #default="{ node }">
+        <ax-tree-node
+          :key="node.key"
+          :node="node"
+          :expanded="isExpanded(node)"
+          :loadingKeys="loadingKeysRef"
+          @toggle="toggleExpand"
+          :selectedKeys="selectKeysRef"
+          @select="handleSelect"
+        >
+        </ax-tree-node>
+      </template>
+    </ax-virtual-list>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Key, treeEmits, TreeNode, TreeOption, treeProps } from './tree'
-import { computed, ref, watch } from 'vue'
+import {
+  Key,
+  treeEmits,
+  treeInjectKey,
+  TreeNode,
+  TreeOption,
+  treeProps,
+} from './tree'
+import { computed, provide, ref, useSlots, watch } from 'vue'
 import AxTreeNode from './treeNode.vue'
+import AxVirtualList from '../../virtual-list'
 import { createNamespace } from '@axis-ui/utils/create'
 const bem = createNamespace('tree')
 defineOptions({
@@ -223,4 +233,8 @@ function handleSelect(node: TreeNode) {
   }
   emit('update:selectedKeys', keys)
 }
+
+provide(treeInjectKey, {
+  slots: useSlots(),
+})
 </script>
