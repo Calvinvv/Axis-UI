@@ -1,12 +1,14 @@
 import { withInstall } from '@axis-ui/utils'
 import _Virtual from './src/virtual'
 
-const Tree = withInstall(_Virtual)
+const Virtual = withInstall(_Virtual)
 
-export default Tree
+export default Virtual
+
+export * from './src/virtual'
 
 declare module 'vue' {
   export interface GlobalComponents {
-    AxVirtualList: typeof _Virtual
+    AxVirtualList: typeof Virtual
   }
 }

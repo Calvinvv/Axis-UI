@@ -5,6 +5,8 @@ const Icon = withInstall(_Icon)
 
 export default Icon
 
+export * from './src/icon'
+
 //引用模板后有组件注释了
 declare module 'vue' {
   export interface GlobalComponents {
