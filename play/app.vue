@@ -98,6 +98,11 @@ const handleLoad = (node: TreeOption) => {
 }
 
 const value = ref<Key[]>([])
+const check = ref(true)
+
+const handleChange = (val: boolean) => {
+  console.log('checkbox changed:', val)
+}
 </script>
 <template>
   <ax-icon :size="160" :color="'red'">
@@ -117,4 +122,14 @@ const value = ref<Key[]>([])
   </ax-tree>
   <!--selectabal:可以选择节点     multiple：可以多选节点
      selected-keys：选中后的节点-->
+
+  {{ check }}
+  <ax-checkbox
+    v-model="check"
+    :disabled="false"
+    :indeterminate="true"
+    label="属性方式传入节点"
+    @change="handleChange"
+    >插槽方式传入节点</ax-checkbox
+  >
 </template>

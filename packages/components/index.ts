@@ -5,9 +5,10 @@ import type { App } from 'vue'
 import '@axis-ui/theme-chalk/src/index.scss'
 import Icon from './icon'
 import Tree from './tree'
+import Checkbox from './checkbox'
 
 // 所有组件列表
-const components = [Icon, Tree]
+const components = [Icon, Tree, Checkbox]
 
 // 全量安装方法
 const install = (app: App) => {
@@ -22,7 +23,7 @@ export default {
 }
 
 // 按需导出各个组件
-export { Icon, Tree }
+export { Icon, Tree, Checkbox }
 
 // 导出组件类型
 export * from './icon'

@@ -1,11 +1,12 @@
 import { createApp } from 'vue'
 import App from './app.vue'
 
-import { Icon, Tree } from 'axis-ui'
+import { Icon, Tree, Checkbox } from 'axis-ui'
 
 const app = createApp(App)
 
 app.use(Icon)
 app.use(Tree)
+app.use(Checkbox)
 
 app.mount('#app')
