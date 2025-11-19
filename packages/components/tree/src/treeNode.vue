@@ -25,6 +25,13 @@
           <i-codex:loader v-else></i-codex:loader>
         </ax-icon>
       </span>
+      <ax-checkbox
+        v-if="showCheckbox"
+        :disabled="disabled"
+        :model-value="checked"
+        :indeterminate="indeterminate"
+        @change="handleCheckChange"
+      ></ax-checkbox>
       <span @click="handleSeleted" :class="bem.e('label')">
         <AxTreeNodeContent :node="node"></AxTreeNodeContent>
       </span>
@@ -37,6 +44,7 @@ import { createNamespace } from '@axis-ui/utils/create'
 import { treeInjectKey, treeNodeEmits, treeNodeProps } from './tree'
 import { computed, inject } from 'vue'
 import AxTreeNodeContent from './tree-node-content'
+import AxCheckbox from '../../checkbox'
 const bem = createNamespace('tree-node')
 const props = defineProps(treeNodeProps)
 
@@ -61,4 +69,8 @@ function handleSeleted() {
 }
 
 inject(treeInjectKey)
+
+function handleCheckChange(val: boolean) {
+  emit('check', props.node, val)
+}
 </script>

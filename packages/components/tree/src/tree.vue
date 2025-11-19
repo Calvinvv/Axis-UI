@@ -11,6 +11,11 @@
           @toggle="toggleExpand"
           :selectedKeys="selectKeysRef"
           @select="handleSelect"
+          :showCheckbox="showCheckbox"
+          :checked="isChecked(node)"
+          :disabled="isDisabled(node)"
+          :indeterminate="isIndeterminate(node)"
+          @check="toggleCheck"
         >
         </ax-tree-node>
       </template>
@@ -27,7 +32,7 @@ import {
   TreeOption,
   treeProps,
 } from './tree'
-import { computed, provide, ref, useSlots, watch } from 'vue'
+import { computed, onMounted, provide, ref, useSlots, watch } from 'vue'
 import AxTreeNode from './treeNode.vue'
 import AxVirtualList from '../../virtual-list'
 import { createNamespace } from '@axis-ui/utils/create'
@@ -87,6 +92,7 @@ function createTree(data: TreeOption[], parent: TreeNode | null = null) {
         level: parent ? parent.level + 1 : 0,
         disabled: !!node.disabled,
         isLeaf: node.isLeaf ?? children.length === 0, //如果没有传入isLeaf，则根据children数判断，增强代码健壮性
+        parentKey: parent?.key,
       }
       if (children.length > 0) {
         // 有孩子再去递归孩子，将其格式化成treeNode类型
@@ -236,5 +242,100 @@ function handleSelect(node: TreeNode) {
 
 provide(treeInjectKey, {
   slots: useSlots(),
+})
+
+const checkedKeysRefs = ref(new Set(props.defaultCheckedKeys))
+
+function isChecked(node: TreeNode) {
+  return checkedKeysRefs.value.has(node.key)
+}
+
+function isDisabled(node: TreeNode) {
+  return node.disabled
+}
+
+const indeterminateRefs = ref(new Set<Key>())
+
+function isIndeterminate(node: TreeNode) {
+  return indeterminateRefs.value.has(node.key)
+}
+
+//自上而下的更新
+function toggle(node: TreeNode, checked: boolean) {
+  const checkedKeys = checkedKeysRefs.value
+
+  // 选中的时候清除半选状态
+  if (checked) {
+    indeterminateRefs.value.delete(node.key)
+  }
+
+  //维护key列表
+  checkedKeys[checked ? 'add' : 'delete'](node.key)
+  const children = node.children
+  if (children) {
+    children.forEach(childNode => {
+      if (!childNode.disabled) {
+        toggleCheck(childNode, checked)
+      }
+    })
+  }
+}
+
+function findNode(key: Key) {
+  return flattenTree.value.find(node => node.key === key)
+}
+
+//自下而上的更新
+function updateCheckedKeys(node: TreeNode) {
+  if (node.parentKey) {
+    const parentNode = findNode(node.parentKey)
+
+    if (parentNode) {
+      let allChecked = true
+      let someChecked = false
+
+      const children = parentNode.children
+
+      for (const childNode of children) {
+        if (checkedKeysRefs.value.has(childNode.key)) {
+          someChecked = true
+        } else if (indeterminateRefs.value.has(childNode.key)) {
+          someChecked = true
+          allChecked = false
+          break
+        } else {
+          allChecked = false
+        }
+      }
+      // 根据子节点的选中状态，更新父节点的选中和半选状态
+      if (allChecked) {
+        checkedKeysRefs.value.add(parentNode.key)
+        indeterminateRefs.value.delete(parentNode.key)
+      } else if (someChecked) {
+        checkedKeysRefs.value.delete(parentNode.key)
+        indeterminateRefs.value.add(parentNode.key)
+      } else {
+        checkedKeysRefs.value.delete(parentNode.key)
+        indeterminateRefs.value.delete(parentNode.key)
+      }
+      // 递归更新父节点
+      updateCheckedKeys(parentNode)
+    }
+  }
+}
+
+function toggleCheck(node: TreeNode, checked: boolean) {
+  toggle(node, checked)
+
+  updateCheckedKeys(node)
+}
+
+onMounted(() => {
+  checkedKeysRefs.value.forEach(key => {
+    const node = flattenTree.value.find(node => node.key === key)
+    if (node) {
+      toggle(node, true)
+    }
+  })
 })
 </script>

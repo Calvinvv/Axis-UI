@@ -117,6 +117,8 @@ const handleChange = (val: boolean) => {
     v-model:selected-keys="value"
     selectabal
     multiple
+    show-checkbox
+    :default-checked-keys="['40', '41', '42']"
   >
     <template #default="{ node }">{{ node.key }} - {{ node.label }}</template>
   </ax-tree>
