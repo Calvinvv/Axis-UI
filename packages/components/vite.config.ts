@@ -29,14 +29,6 @@ export default defineConfig({
       insertTypesEntry: true,
     }),
   ],
-  resolve: {
-    alias: {
-      // 这行配置告诉 Vite：@ 符号就代表 'src' 目录的绝对路径
-      // 你已经在上面 import { resolve } from 'path' 了
-      // 并且在 lib.entry 中使用了 __dirname，所以这里也这样用
-      '@': resolve(__dirname, 'src'),
-    },
-  },
   build: {
     // 输出目录
     outDir: 'dist',
