@@ -8,14 +8,22 @@
   "scripts": {
     "dev": "pnpm -C play dev",
     "build": "pnpm build:all",
-    "build:all": "pnpm -r --filter \"./packages/**\" build",
-    "check:publish": "pnpm -r --filter \"./packages/**\" exec publint && attw --pack packages/components --profile esm-only --exclude-entrypoints ./dist/style.css && attw --pack packages/utils --profile esm-only",
+    "build:all": "pnpm -r --if-present --filter \"./packages/**\" --filter \"./apps/**\" --filter \"./fixtures/acp-agents\" run build",
+    "check:publish": "pnpm -r --filter axis-ui --filter @axis-ui/theme-chalk --filter @axis-ui/utils exec publint && attw --pack packages/components --profile esm-only --exclude-entrypoints ./dist/style.css && attw --pack packages/utils --profile esm-only",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "type-check": "vue-tsc --noEmit",
+    "type-check": "pnpm type-check:node && pnpm type-check:vue",
+    "type-check:node": "pnpm -r --filter @axis-ui/acp-core --filter @axis-ui/acp-harness --filter @axis-ui/acp-cli --filter @axis-ui/acp-fixture-agents run type-check",
+    "type-check:vue": "vue-tsc --noEmit && pnpm --filter @axis-ui/acp-devtools run type-check",
     "test": "vitest",
+    "test:unit": "vitest run --project axis-ui --project acp-node --project acp-devtools",
+    "test:contract": "vitest run --project contract",
+    "test:scenario": "vitest run --project scenario",
+    "test:replay": "vitest run --project replay",
+    "test:security": "vitest run --project security",
+    "test:browser": "vitest run --project browser",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
@@ -29,7 +37,8 @@
     "prepare": "husky",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "pnpm build:all && pnpm -r publish --access public --no-git-checks && changeset tag"
+    "release:packages": "pnpm -r --filter axis-ui --filter @axis-ui/theme-chalk --filter @axis-ui/utils publish --access public --no-git-checks",
+    "release": "pnpm build:all && pnpm release:packages && changeset tag"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
@@ -42,7 +51,9 @@
     "@iconify/json": "^2.2.403",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitejs/plugin-vue-jsx": "^5.1.1",
+    "@vitest/browser-playwright": "4.0.4",
     "@vitest/coverage-v8": "^4.0.4",
+    "@types/node": "^20.19.43",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/test-utils": "^2.4.6",
@@ -55,6 +66,7 @@
     "husky": "^9.1.7",
     "jsdom": "^27.0.1",
     "lint-staged": "^16.2.6",
+    "playwright": "^1.62.1",
     "prettier": "^3.6.2",
     "publint": "^0.3.22",
     "sass": "^1.93.2",
@@ -77,5 +89,10 @@
     "*.{css,scss,less,md,json}": [
       "prettier --write"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/node": "20.19.43"
+    }
   }
 }

@@ -1,0 +1,20 @@
+{
+  "name": "@axis-ui/acp-cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "type-check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@axis-ui/acp-core": "workspace:*",
+    "@axis-ui/acp-harness": "workspace:*"
+  }
+}

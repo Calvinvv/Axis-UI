@@ -1,23 +1,94 @@
-import { defineConfig } from 'vitest/config'
-import { resolve } from 'path'
+import { playwright } from '@vitest/browser-playwright'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import { resolve } from 'node:path'
+import { defineConfig } from 'vitest/config'
+
+const aliases = {
+  '@': resolve(__dirname),
+  '@test': resolve(__dirname, './test'),
+  '@packages': resolve(__dirname, './packages'),
+  '@docs': resolve(__dirname, './docs'),
+  'axis-ui': resolve(__dirname, './packages/components/index.ts'),
+  '@axis-ui/utils': resolve(__dirname, './packages/utils/index.ts'),
+  '@axis-ui/theme-chalk/src': resolve(__dirname, './packages/theme-chalk/src'),
+  '@axis-ui/theme-chalk': resolve(__dirname, './packages/theme-chalk'),
+}
 
 export default defineConfig({
-  // vueJsx 必须显式配置：esbuild 对 .tsx 的默认产物是 React JSX，
-  // 缺了它 virtual.tsx 这类 TSX 组件在运行时会抛 "React is not defined"
-  plugins: [vue(), vueJsx()],
   test: {
-    // 启用类似Jest的测试API
-    globals: true,
-    // 模拟DOM环境
-    environment: 'happy-dom',
-    // 支持Vue文件
-    include: ['**/*.{test,spec}.{js,ts,jsx,tsx}'],
-    exclude: ['node_modules', 'dist', '.output'],
-    // 测试设置文件
-    setupFiles: ['./test/setup/index.ts'],
-    // 测试覆盖率配置
+    projects: [
+      {
+        plugins: [vue(), vueJsx()],
+        resolve: { alias: aliases },
+        test: {
+          name: 'axis-ui',
+          environment: 'happy-dom',
+          include: ['test/components/**/*.spec.ts', 'test/utils/**/*.spec.ts'],
+          setupFiles: ['./test/setup/index.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'acp-node',
+          environment: 'node',
+          include: [
+            'test/repository/**/*.spec.ts',
+            'packages/{acp-core,acp-harness,acp-cli}/**/*.spec.ts',
+            'fixtures/acp-agents/**/*.spec.ts',
+          ],
+        },
+      },
+      {
+        plugins: [vue()],
+        test: {
+          name: 'acp-devtools',
+          environment: 'happy-dom',
+          include: ['apps/acp-devtools/test/unit/**/*.spec.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'contract',
+          environment: 'node',
+          include: ['test/contract/**/*.contract.spec.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'scenario',
+          environment: 'node',
+          include: ['test/scenario/**/*.scenario.spec.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'replay',
+          environment: 'node',
+          include: ['test/replay/**/*.replay.spec.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'security',
+          environment: 'node',
+          include: ['test/security/**/*.security.spec.ts'],
+        },
+      },
+      {
+        plugins: [vue()],
+        test: {
+          name: 'browser',
+          include: ['apps/acp-devtools/test/browser/**/*.browser.spec.ts'],
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright(),
+            instances: [{ browser: 'chromium' }],
+          },
+        },
+      },
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -35,8 +106,6 @@ export default defineConfig({
         '**/*.scss',
         '**/*.css',
       ],
-      // 覆盖率阈值：按当前真实水平设定门槛，随测试补齐逐步上调
-      // 注意：Vitest 的阈值直接写在 thresholds 下，嵌套 global 是 Jest 语法（会被当作 glob 忽略）
       thresholds: {
         statements: 78,
         branches: 48,
@@ -44,29 +113,11 @@ export default defineConfig({
         lines: 78,
       },
     },
-    // 快照测试配置
     snapshotFormat: {
       escapeString: true,
       printBasicPrototype: false,
     },
-    // 测试超时时间
     testTimeout: 10000,
-    // 钩子超时时间
     hookTimeout: 10000,
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname),
-      '@test': resolve(__dirname, './test'),
-      '@packages': resolve(__dirname, './packages'),
-      '@docs': resolve(__dirname, './docs'),
-      'axis-ui': resolve(__dirname, './packages/components/index.ts'),
-      '@axis-ui/utils': resolve(__dirname, './packages/utils/index.ts'),
-      '@axis-ui/theme-chalk/src': resolve(
-        __dirname,
-        './packages/theme-chalk/src'
-      ),
-      '@axis-ui/theme-chalk': resolve(__dirname, './packages/theme-chalk'),
-    },
   },
 })
