@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./bridge": {
+      "types": "./dist/bridge/index.d.ts",
+      "import": "./dist/bridge/index.js"
     }
   },
   "scripts": {
@@ -14,6 +18,8 @@
     "type-check": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@axis-ui/acp-core": "workspace:*"
+    "@agentclientprotocol/sdk": "1.3.0",
+    "@axis-ui/acp-core": "workspace:*",
+    "ws": "8.18.3"
   }
 }

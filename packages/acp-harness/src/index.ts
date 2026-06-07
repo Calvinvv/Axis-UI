@@ -1,2 +1,7 @@
-// Gate 01 establishes only the private package boundary. Harness behavior starts in Gate 02.
-export {}
+export * from './errors.js'
+export * from './harness.js'
+export * from './process-manager.js'
+export * from './sdk-client.js'
+export * from './target-registry.js'
+export * from './types.js'
+export * from './bridge/index.js'
