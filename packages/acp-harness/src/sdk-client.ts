@@ -14,8 +14,8 @@ export class AcpSdkClient {
 
   connect(target: ManagedTarget): ClientConnection {
     const stream = ndJsonStream(
-      Writable.toWeb(target.child.stdin),
-      Readable.toWeb(target.child.stdout)
+      Writable.toWeb(target.child.stdin) as WritableStream<Uint8Array>,
+      Readable.toWeb(target.child.stdout) as ReadableStream<Uint8Array>
     )
     const connection = client({ name: 'axis-acp-devkit' })
       .onRequest(methods.client.session.requestPermission, () => ({

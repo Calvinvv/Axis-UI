@@ -12,7 +12,9 @@ describe('TargetRegistry security boundary', () => {
 
     await expect(
       registry.resolve({ targetId: 'shell', workspaceRoot: repositoryRoot })
-    ).rejects.toMatchObject<HarnessError>({ code: 'UNKNOWN_TARGET' })
+    ).rejects.toMatchObject({
+      code: 'UNKNOWN_TARGET',
+    } satisfies Partial<HarnessError>)
   })
 
   it('rejects arbitrary arguments and environment variables', async () => {
@@ -24,7 +26,9 @@ describe('TargetRegistry security boundary', () => {
         workspaceRoot: repositoryRoot,
         args: ['-e', 'process.exit()'],
       })
-    ).rejects.toMatchObject<HarnessError>({ code: 'ARGUMENT_NOT_ALLOWED' })
+    ).rejects.toMatchObject({
+      code: 'ARGUMENT_NOT_ALLOWED',
+    } satisfies Partial<HarnessError>)
 
     await expect(
       registry.resolve({
@@ -32,7 +36,9 @@ describe('TargetRegistry security boundary', () => {
         workspaceRoot: repositoryRoot,
         environment: { NODE_OPTIONS: '--inspect' },
       })
-    ).rejects.toMatchObject<HarnessError>({ code: 'ENVIRONMENT_NOT_ALLOWED' })
+    ).rejects.toMatchObject({
+      code: 'ENVIRONMENT_NOT_ALLOWED',
+    } satisfies Partial<HarnessError>)
   })
 
   it('rejects a workspace outside the configured realpath roots', async () => {
@@ -40,7 +46,9 @@ describe('TargetRegistry security boundary', () => {
 
     await expect(
       registry.resolve({ targetId: 'fixture-agent', workspaceRoot: tmpdir() })
-    ).rejects.toMatchObject<HarnessError>({ code: 'WORKSPACE_NOT_ALLOWED' })
+    ).rejects.toMatchObject({
+      code: 'WORKSPACE_NOT_ALLOWED',
+    } satisfies Partial<HarnessError>)
   })
 
   it('resolves only fixed command data plus allowlisted values', async () => {
