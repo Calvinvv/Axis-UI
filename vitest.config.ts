@@ -13,6 +13,7 @@ const aliases = {
   '@axis-ui/utils': resolve(__dirname, './packages/utils/index.ts'),
   '@axis-ui/theme-chalk/src': resolve(__dirname, './packages/theme-chalk/src'),
   '@axis-ui/theme-chalk': resolve(__dirname, './packages/theme-chalk'),
+  '@axis-ui/acp-core': resolve(__dirname, './packages/acp-core/src/index.ts'),
 }
 
 export default defineConfig({
