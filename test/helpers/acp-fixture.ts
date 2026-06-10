@@ -18,7 +18,11 @@ export const fixtureTarget: TargetDefinition = {
   id: 'fixture-agent',
   command: process.execPath,
   fixedArgs: [fixtureAgentPath],
-  allowedArgs: ['--crash-after-initialize'],
+  allowedArgs: [
+    '--crash-after-initialize',
+    '--stdout-noise',
+    '--stderr-marker',
+  ],
   environmentAllowlist: ['PATH'],
   maxProcesses: 2,
   expectedProtocolVersion: 'v1',

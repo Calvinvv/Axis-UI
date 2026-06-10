@@ -45,5 +45,20 @@ describe('Harness ↔ official SDK ↔ fixture contract', () => {
 
     expect(exit).toEqual({ code: 17, signal: null })
     expect(harness.processes.list()).toHaveLength(0)
+    expect(harness.events).toContainEqual(
+      expect.objectContaining({
+        type: 'process/exited',
+        connectionId: target.id,
+        code: 17,
+        signal: null,
+      })
+    )
+    expect(harness.events).toContainEqual(
+      expect.objectContaining({
+        type: 'connection/state-changed',
+        connectionId: target.id,
+        state: 'crashed',
+      })
+    )
   })
 })

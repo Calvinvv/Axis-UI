@@ -5,6 +5,11 @@ import { Readable, Writable } from 'node:stream'
 const shouldCrashAfterInitialize = process.argv.includes(
   '--crash-after-initialize'
 )
+const shouldEmitStdoutNoise = process.argv.includes('--stdout-noise')
+const shouldEmitStderr = process.argv.includes('--stderr-marker')
+
+if (shouldEmitStdoutNoise) process.stdout.write('fixture stdout noise\n')
+if (shouldEmitStderr) process.stderr.write('fixture stderr marker\n')
 
 const app = acp
   .agent({ name: 'axis-deterministic-fixture' })
@@ -15,7 +20,7 @@ const app = acp
       agentCapabilities: { loadSession: false },
       agentInfo: {
         name: 'axis-deterministic-fixture',
-        version: '0.0.0-gate-02',
+        version: '0.0.0-fixture',
       },
     }
   })
