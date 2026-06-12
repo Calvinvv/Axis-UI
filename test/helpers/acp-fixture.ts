@@ -22,6 +22,8 @@ export const fixtureTarget: TargetDefinition = {
     '--crash-after-initialize',
     '--stdout-noise',
     '--stderr-marker',
+    '--permission-prompt',
+    '--crash-during-prompt',
   ],
   environmentAllowlist: ['PATH'],
   maxProcesses: 2,

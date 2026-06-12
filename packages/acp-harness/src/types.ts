@@ -1,4 +1,7 @@
-import type { InitializeResponse } from '@agentclientprotocol/sdk'
+import type {
+  InitializeResponse,
+  RequestPermissionOutcome,
+} from '@agentclientprotocol/sdk'
 
 export type ProtocolVersion = 'v1'
 
@@ -44,4 +47,27 @@ export interface TargetHandle {
 export interface HarnessInitialization {
   readonly targetHandleId: string
   readonly response: InitializeResponse
+}
+
+export interface SessionIdentity {
+  readonly targetHandleId: string
+  readonly sessionId: string
+}
+
+export interface PromptInput {
+  readonly targetHandleId: string
+  readonly sessionId: string
+  readonly text: string
+}
+
+export interface PromptSubmission {
+  readonly turnId: string
+  readonly sessionId: string
+}
+
+export interface PermissionDecision {
+  readonly targetHandleId: string
+  readonly sessionId: string
+  readonly permissionId: string
+  readonly outcome: RequestPermissionOutcome
 }

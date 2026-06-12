@@ -1,11 +1,22 @@
-import type { InitializeResponse } from '@agentclientprotocol/sdk'
+import type {
+  InitializeResponse,
+  RequestPermissionOutcome,
+  RequestPermissionRequest,
+  SessionNotification,
+  StopReason,
+} from '@agentclientprotocol/sdk'
 import type {
   AxisAcpEvent,
   AxisAcpEventListener,
   CapabilitySnapshotEvent,
   ConnectionStateChangedEvent,
+  MessageChunkAppendedEvent,
+  PermissionRequestedEvent,
+  PermissionResolvedEvent,
   ProcessExitedEvent,
   SequenceAllocator,
+  SessionStateChangedEvent,
+  ToolCallUpsertEvent,
 } from '@axis-ui/acp-core'
 import type { TargetExit } from './types.js'
 
@@ -57,6 +68,86 @@ export class AcpV1Adapter {
     })
   }
 
+  sessionState(
+    sessionId: string,
+    state: SessionStateChangedEvent['state'],
+    sourceTraceIds: readonly string[] = [],
+    details: { readonly stopReason?: StopReason; readonly error?: string } = {}
+  ): SessionStateChangedEvent {
+    return this.emit<SessionStateChangedEvent>({
+      ...this.sessionMetadata(sourceTraceIds, sessionId),
+      type: 'session/state-changed',
+      state,
+      ...details,
+    })
+  }
+
+  sessionUpdate(
+    notification: SessionNotification,
+    sourceTraceIds: readonly string[]
+  ): AxisAcpEvent | undefined {
+    const { sessionId, update } = notification
+    switch (update.sessionUpdate) {
+      case 'user_message_chunk':
+      case 'agent_message_chunk':
+      case 'agent_thought_chunk': {
+        const role =
+          update.sessionUpdate === 'user_message_chunk'
+            ? 'user'
+            : update.sessionUpdate === 'agent_thought_chunk'
+              ? 'thought'
+              : 'agent'
+        return this.emit<MessageChunkAppendedEvent>({
+          ...this.sessionMetadata(sourceTraceIds, sessionId),
+          type: 'message/chunk-appended',
+          messageId:
+            update.messageId ??
+            `${sessionId}:${role}:${sourceTraceIds[0] ?? 'local'}`,
+          role,
+          content: update.content,
+        })
+      }
+      case 'tool_call':
+      case 'tool_call_update':
+        return this.emit<ToolCallUpsertEvent>({
+          ...this.sessionMetadata(sourceTraceIds, sessionId),
+          type: 'tool-call/upsert',
+          toolCallId: update.toolCallId,
+          patch: update as unknown as Readonly<Record<string, unknown>>,
+        })
+      default:
+        return undefined
+    }
+  }
+
+  permissionRequested(
+    permissionId: string,
+    request: RequestPermissionRequest,
+    sourceTraceIds: readonly string[]
+  ): PermissionRequestedEvent {
+    return this.emit<PermissionRequestedEvent>({
+      ...this.sessionMetadata(sourceTraceIds, request.sessionId),
+      type: 'permission/requested',
+      permissionId,
+      toolCall: request.toolCall as Readonly<Record<string, unknown>>,
+      options: request.options as readonly Readonly<Record<string, unknown>>[],
+    })
+  }
+
+  permissionResolved(
+    permissionId: string,
+    sessionId: string,
+    outcome: RequestPermissionOutcome,
+    sourceTraceIds: readonly string[] = []
+  ): PermissionResolvedEvent {
+    return this.emit<PermissionResolvedEvent>({
+      ...this.sessionMetadata(sourceTraceIds, sessionId),
+      type: 'permission/resolved',
+      permissionId,
+      outcome,
+    })
+  }
+
   private metadata(sourceTraceIds: readonly string[]): EventMetadata {
     const sequence = this.options.sequence.next()
     return {
@@ -68,6 +159,13 @@ export class AcpV1Adapter {
       protocolVersion: 'v1' as const,
       sourceTraceIds,
     }
+  }
+
+  private sessionMetadata(
+    sourceTraceIds: readonly string[],
+    sessionId: string
+  ): EventMetadata & { readonly sessionId: string } {
+    return { ...this.metadata(sourceTraceIds), sessionId }
   }
 
   private emit<T extends AxisAcpEvent>(event: T): T {
