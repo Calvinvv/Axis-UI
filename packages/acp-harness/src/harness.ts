@@ -13,6 +13,7 @@ import {
 import { randomUUID } from 'node:crypto'
 import { ProcessManager } from './process-manager.js'
 import { AcpSdkClient } from './sdk-client.js'
+import { HarnessError } from './errors.js'
 import { TargetRegistry } from './target-registry.js'
 import type {
   HarnessInitialization,
@@ -90,6 +91,19 @@ export class AcpHarness {
   }
 
   async submitPrompt(input: PromptInput): Promise<PromptSubmission> {
+    const state = this.sessionStates.get(input.sessionId)
+    if (state?.status === 'prompting' || state?.status === 'cancelling') {
+      throw new HarnessError(
+        `Session already has an active prompt: ${input.sessionId}`,
+        'SESSION_BUSY'
+      )
+    }
+    if (state?.status === 'crashed') {
+      throw new HarnessError(
+        `Session connection has crashed: ${input.sessionId}`,
+        'SESSION_CRASHED'
+      )
+    }
     return this.sdk.submitPrompt(input)
   }
 

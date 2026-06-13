@@ -129,4 +129,31 @@ describe('reduceSessionEvent', () => {
 
     expect(reduceSessionEvent(initial, event)).toBe(initial)
   })
+
+  it('opens a later prompt turn after a completed turn', () => {
+    const initial = createSessionState(
+      metadata.sessionId,
+      metadata.connectionId
+    )
+    const completed: AxisAcpEvent = {
+      ...metadata,
+      id: 'turn-1-completed',
+      sequence: 1,
+      type: 'session/state-changed',
+      state: 'completed',
+      stopReason: 'end_turn',
+    }
+    const nextPrompt: AxisAcpEvent = {
+      ...metadata,
+      id: 'turn-2-prompting',
+      sequence: 2,
+      type: 'session/state-changed',
+      state: 'prompting',
+    }
+
+    const state = reduceSessionEvents(initial, [nextPrompt, completed])
+
+    expect(state.status).toBe('prompting')
+    expect(state.stopReason).toBeUndefined()
+  })
 })

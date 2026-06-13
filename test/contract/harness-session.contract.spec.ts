@@ -49,6 +49,13 @@ describe('Harness session lifecycle contract', () => {
       text: 'reply deterministically',
     })
     expect(submission.sessionId).toBe(session.sessionId)
+    await expect(
+      harness.submitPrompt({
+        targetHandleId: targetId,
+        sessionId: session.sessionId,
+        text: 'must not overlap',
+      })
+    ).rejects.toMatchObject({ code: 'SESSION_BUSY' })
     await waitFor(
       () => harness.getSession(session.sessionId)?.status === 'completed'
     )
@@ -61,6 +68,19 @@ describe('Harness session lifecycle contract', () => {
     expect(state?.messages['message-1']?.chunks).toEqual([
       { type: 'text', text: 'fixture response' },
     ])
+
+    await harness.submitPrompt({
+      targetHandleId: targetId,
+      sessionId: session.sessionId,
+      text: 'continue the same session',
+    })
+    await waitFor(
+      () =>
+        harness.getSession(session.sessionId)?.status === 'completed' &&
+        harness.getSession(session.sessionId)?.messages['message-1']?.chunks
+          .length === 2
+    )
+
     expect(harness.trace.map(frame => frame.method)).toContain('session/new')
     expect(harness.trace.map(frame => frame.method)).toContain('session/prompt')
   })

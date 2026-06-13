@@ -75,7 +75,12 @@ export function reduceSessionEvent(
 
   switch (event.type) {
     case 'session/state-changed': {
-      if (terminalStates.has(state.status)) return base
+      if (
+        terminalStates.has(state.status) &&
+        !(event.state === 'prompting' && state.status !== 'crashed')
+      ) {
+        return base
+      }
       return {
         ...base,
         status: event.state,
