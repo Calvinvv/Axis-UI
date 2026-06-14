@@ -123,7 +123,7 @@ describe('Harness session lifecycle contract', () => {
     const state = harness.getSession(session.sessionId)
     expect(state?.pendingPermissions).toEqual({})
     expect(state?.stopReason).toBe('cancelled')
-    expect(state?.toolCalls['permission-tool']).toBeDefined()
+    expect(state?.toolCalls['permission-tool']?.data.status).toBe('cancelled')
     expect(harness.trace).toContainEqual(
       expect.objectContaining({
         direction: 'client-to-agent',

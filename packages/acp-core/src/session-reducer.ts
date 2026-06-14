@@ -89,6 +89,10 @@ export function reduceSessionEvent(
         pendingPermissions: terminalStates.has(event.state)
           ? {}
           : state.pendingPermissions,
+        toolCalls:
+          event.state === 'cancelling'
+            ? cancelToolCalls(state.toolCalls)
+            : state.toolCalls,
       }
     }
     case 'message/chunk-appended': {
@@ -142,6 +146,21 @@ export function reduceSessionEvent(
     default:
       return base
   }
+}
+
+function cancelToolCalls(
+  toolCalls: Readonly<Record<string, SessionToolCall>>
+): Readonly<Record<string, SessionToolCall>> {
+  return Object.fromEntries(
+    Object.entries(toolCalls).map(([id, toolCall]) => {
+      const status = toolCall.data.status
+      if (status === 'completed' || status === 'failed') return [id, toolCall]
+      return [
+        id,
+        { ...toolCall, data: { ...toolCall.data, status: 'cancelled' } },
+      ]
+    })
+  )
 }
 
 export function reduceSessionEvents(
