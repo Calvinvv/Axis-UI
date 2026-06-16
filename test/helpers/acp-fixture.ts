@@ -24,6 +24,7 @@ export const fixtureTarget: TargetDefinition = {
     '--stderr-marker',
     '--permission-prompt',
     '--crash-during-prompt',
+    '--capability-method-mismatch',
   ],
   environmentAllowlist: ['PATH'],
   maxProcesses: 2,

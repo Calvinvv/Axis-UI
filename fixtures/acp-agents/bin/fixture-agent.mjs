@@ -9,6 +9,9 @@ const shouldEmitStdoutNoise = process.argv.includes('--stdout-noise')
 const shouldEmitStderr = process.argv.includes('--stderr-marker')
 const shouldRequestPermission = process.argv.includes('--permission-prompt')
 const shouldCrashDuringPrompt = process.argv.includes('--crash-during-prompt')
+const shouldCallUnsupportedTerminal = process.argv.includes(
+  '--capability-method-mismatch'
+)
 
 if (shouldEmitStdoutNoise) process.stdout.write('fixture stdout noise\n')
 if (shouldEmitStderr) process.stderr.write('fixture stderr marker\n')
@@ -98,6 +101,18 @@ const app = acp
           status: 'completed',
         },
       })
+    }
+
+    if (shouldCallUnsupportedTerminal) {
+      try {
+        await context.client.request(acp.methods.client.terminal.create, {
+          sessionId,
+          command: 'echo',
+          args: ['capability mismatch'],
+        })
+      } catch {
+        // The deterministic fault is the unsupported request itself.
+      }
     }
 
     return {
