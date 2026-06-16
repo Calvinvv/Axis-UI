@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { AcpHarness } from '../../packages/acp-harness/src/harness.js'
 import {
+  clientProfiles,
+  type ClientCapabilityProfile,
+} from '../../packages/acp-harness/src/client-profiles.js'
+import {
   createFixtureRegistry,
   repositoryRoot,
 } from '../helpers/acp-fixture.js'
@@ -23,7 +27,10 @@ async function waitFor(
   }
 }
 
-async function startHarness(args: readonly string[] = []): Promise<{
+async function startHarness(
+  args: readonly string[] = [],
+  profile: ClientCapabilityProfile = clientProfiles.minimal
+): Promise<{
   harness: AcpHarness
   targetId: string
 }> {
@@ -34,7 +41,7 @@ async function startHarness(args: readonly string[] = []): Promise<{
     workspaceRoot: repositoryRoot,
     args,
   })
-  await harness.initialize(target.id)
+  await harness.initialize(target.id, profile)
   return { harness, targetId: target.id }
 }
 
@@ -86,7 +93,10 @@ describe('Harness session lifecycle contract', () => {
   })
 
   it('cancels the prompt and every pending permission together', async () => {
-    const { harness, targetId } = await startHarness(['--permission-prompt'])
+    const { harness, targetId } = await startHarness(
+      ['--permission-prompt'],
+      clientProfiles['permission-only']
+    )
     const session = await harness.createSession(targetId)
     await harness.submitPrompt({
       targetHandleId: targetId,

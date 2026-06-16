@@ -1,5 +1,7 @@
 export * from './errors.js'
 export * from './harness.js'
+export * from './client-profiles.js'
+export * from './invariants.js'
 export * from './process-manager.js'
 export * from './sdk-client.js'
 export * from './target-registry.js'

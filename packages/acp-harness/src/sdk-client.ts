@@ -18,6 +18,10 @@ import type {
 import { Readable, Writable } from 'node:stream'
 import { randomUUID } from 'node:crypto'
 import { AcpV1Adapter } from './acp-v1-adapter.js'
+import {
+  clientProfiles,
+  type ClientCapabilityProfile,
+} from './client-profiles.js'
 import { HarnessError } from './errors.js'
 import type { ManagedTarget } from './process-manager.js'
 import { TransportTap } from './transport-tap.js'
@@ -41,6 +45,7 @@ interface ConnectionRecord {
   readonly adapter: AcpV1Adapter
   readonly sessions: Set<string>
   readonly pendingPermissions: Map<string, PendingPermission>
+  profile: ClientCapabilityProfile
 }
 
 interface PendingPermission {
@@ -104,6 +109,7 @@ export class AcpSdkClient {
       adapter,
       sessions: new Set(),
       pendingPermissions: new Map(),
+      profile: clientProfiles.minimal,
     }
     this.connections.set(target.id, record)
     adapter.connectionState('connected')
@@ -119,14 +125,18 @@ export class AcpSdkClient {
     return connection
   }
 
-  async initialize(targetHandleId: string): Promise<InitializeResponse> {
+  async initialize(
+    targetHandleId: string,
+    profile: ClientCapabilityProfile = clientProfiles.minimal
+  ): Promise<InitializeResponse> {
     const record = this.get(targetHandleId)
+    record.profile = profile
     const startingSequence = this.options.sequence.peek()
     const response = await record.connection.agent.request(
       methods.agent.initialize,
       {
         protocolVersion: PROTOCOL_VERSION,
-        clientCapabilities: {},
+        clientCapabilities: profile.capabilities,
       }
     )
     const requestFrame = this.findFrame(
@@ -272,6 +282,21 @@ export class AcpSdkClient {
     )
     const permissionId = source?.id ?? randomUUID()
     const requestTraceIds = source === undefined ? [] : [source.id]
+    if (
+      !record.profile.allowedClientMethods.includes(
+        'session/request_permission'
+      )
+    ) {
+      record.adapter.permissionRequested(permissionId, request, requestTraceIds)
+      const outcome = { outcome: 'cancelled' } as const
+      record.adapter.permissionResolved(
+        permissionId,
+        request.sessionId,
+        outcome,
+        requestTraceIds
+      )
+      return Promise.resolve({ outcome })
+    }
     return new Promise(resolve => {
       const pending: PendingPermission = {
         id: permissionId,

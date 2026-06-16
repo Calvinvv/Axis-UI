@@ -4,6 +4,7 @@ import type {
   AxisAcpEventListener,
   ProtocolTraceFrame,
   ProtocolTraceListener,
+  SessionStateSnapshot,
 } from '@axis-ui/acp-core'
 import {
   SequenceAllocator,
@@ -14,6 +15,10 @@ import { randomUUID } from 'node:crypto'
 import { ProcessManager } from './process-manager.js'
 import { AcpSdkClient } from './sdk-client.js'
 import { HarnessError } from './errors.js'
+import {
+  clientProfiles,
+  type ClientCapabilityProfile,
+} from './client-profiles.js'
 import { TargetRegistry } from './target-registry.js'
 import type {
   HarnessInitialization,
@@ -34,6 +39,7 @@ export class AcpHarness {
   private readonly recordedEvents: AxisAcpEvent[] = []
   private readonly recordedTrace: ProtocolTraceFrame[] = []
   private readonly sessionStates = new Map<string, AcpSessionState>()
+  private readonly recordedStateSnapshots: SessionStateSnapshot[] = []
 
   constructor(
     readonly registry: TargetRegistry,
@@ -57,6 +63,10 @@ export class AcpHarness {
     return this.recordedTrace
   }
 
+  get stateSnapshots(): readonly SessionStateSnapshot[] {
+    return this.recordedStateSnapshots
+  }
+
   subscribeEvents(listener: AxisAcpEventListener): () => void {
     this.eventListeners.add(listener)
     return () => this.eventListeners.delete(listener)
@@ -78,10 +88,13 @@ export class AcpHarness {
     return target
   }
 
-  async initialize(targetHandleId: string): Promise<HarnessInitialization> {
+  async initialize(
+    targetHandleId: string,
+    profile: ClientCapabilityProfile = clientProfiles.minimal
+  ): Promise<HarnessInitialization> {
     return {
       targetHandleId,
-      response: await this.sdk.initialize(targetHandleId),
+      response: await this.sdk.initialize(targetHandleId, profile),
     }
   }
 
@@ -134,16 +147,31 @@ export class AcpHarness {
       const state =
         this.sessionStates.get(event.sessionId) ??
         createSessionState(event.sessionId, event.connectionId)
-      this.sessionStates.set(event.sessionId, reduceSessionEvent(state, event))
+      const nextState = reduceSessionEvent(state, event)
+      this.sessionStates.set(event.sessionId, nextState)
+      this.recordStateSnapshot(event, nextState)
     } else if (
       event.type === 'process/exited' ||
       event.type === 'connection/state-changed'
     ) {
       for (const [sessionId, state] of this.sessionStates) {
-        this.sessionStates.set(sessionId, reduceSessionEvent(state, event))
+        const nextState = reduceSessionEvent(state, event)
+        this.sessionStates.set(sessionId, nextState)
+        this.recordStateSnapshot(event, nextState)
       }
     }
     for (const listener of this.eventListeners) listener(event)
+  }
+
+  private recordStateSnapshot(
+    event: AxisAcpEvent,
+    state: AcpSessionState
+  ): void {
+    this.recordedStateSnapshots.push({
+      id: `${event.id}:state:${state.sessionId}`,
+      sequence: event.sequence,
+      state,
+    })
   }
 
   private publishTrace(frame: ProtocolTraceFrame): void {
