@@ -1,4 +1,9 @@
-import type { Diagnostic, SessionStateSnapshot } from '@axis-ui/acp-core'
+import {
+  createTranscript,
+  type AxisAcpTranscript,
+  type Diagnostic,
+  type SessionStateSnapshot,
+} from '@axis-ui/acp-core'
 import { AcpHarness } from './harness.js'
 import { evaluateLifecycleInvariants } from './invariants.js'
 import {
@@ -37,6 +42,7 @@ export interface ScenarioReport {
   readonly assertions: readonly ScenarioAssertionResult[]
   readonly diagnostics: readonly Diagnostic[]
   readonly stateSnapshots: readonly SessionStateSnapshot[]
+  readonly transcript: AxisAcpTranscript
   readonly traceCount: number
   readonly eventCount: number
 }
@@ -94,6 +100,7 @@ export class ScenarioRunner {
   }
 
   async run(definition: ScenarioDefinition): Promise<ScenarioReport> {
+    const startedAt = new Date().toISOString()
     const harness = new AcpHarness(this.options.registry)
     const profile = clientProfiles[definition.profileId]
     const assertions: ScenarioAssertionResult[] = []
@@ -175,6 +182,44 @@ export class ScenarioRunner {
     const expectedDiagnosticsPresent = definition.expectedDiagnosticIds.every(
       id => diagnostics.some(item => item.invariantId === id)
     )
+    const capabilitySnapshot = harness.events.find(
+      event => event.type === 'capability/snapshot'
+    )
+    const transcript = await createTranscript(
+      {
+        run: {
+          id: harness.runId,
+          scenarioId: definition.id,
+          startedAt,
+          completedAt: new Date().toISOString(),
+          toolkitVersion: '0.0.0',
+          protocolVersion: 'v1',
+        },
+        target: {
+          id: this.options.targetId,
+          transport: 'stdio',
+          protocolVersion: 'v1',
+          args: definition.targetArgs,
+          agentInfo: capabilitySnapshot?.agentInfo,
+        },
+        clientProfile: {
+          id: profile.id,
+          capabilities: profile.capabilities,
+          allowedClientMethods: profile.allowedClientMethods,
+        },
+        rawFrames: harness.trace,
+        events: harness.events,
+        assertions,
+        diagnostics,
+      },
+      {
+        secretValues: [this.options.workspaceRoot],
+        explicitPaths: [
+          'rawFrames.*.parsed.params.prompt',
+          'rawFrames.*.raw.$json.params.prompt',
+        ],
+      }
+    )
 
     return {
       runId: harness.runId,
@@ -187,6 +232,7 @@ export class ScenarioRunner {
       assertions,
       diagnostics,
       stateSnapshots,
+      transcript,
       traceCount: harness.trace.length,
       eventCount: harness.events.length,
     }
