@@ -84,6 +84,38 @@ describe('AxVirtualList', () => {
       (wrapper.find('.ax-vl__scroll-bar').element as HTMLElement).style.height
     ).toBe('1600px') // 50 * 32
   })
+
+  it('scrollToIndex exposes generic index navigation with alignment', async () => {
+    const wrapper = mountList(createItems(100))
+    const component = wrapper.vm as unknown as {
+      scrollToIndex: (
+        index: number,
+        alignment?: 'auto' | 'start' | 'center' | 'end'
+      ) => void
+    }
+
+    component.scrollToIndex(50, 'center')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.element.scrollTop).toBe(1488)
+    expect(itemTexts(wrapper)).toContain('Item 50')
+
+    component.scrollToIndex(500, 'end')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.element.scrollTop).toBe((100 - 8) * 32)
+    expect(itemTexts(wrapper).at(-1)).toBe('Item 99')
+  })
+
+  it('scrollToIndex auto keeps an already visible item stable', () => {
+    const wrapper = mountList(createItems(100))
+    const component = wrapper.vm as unknown as {
+      scrollToIndex: (index: number) => void
+    }
+
+    component.scrollToIndex(4)
+
+    expect(wrapper.element.scrollTop).toBe(0)
+  })
 })
 
 // ========================================

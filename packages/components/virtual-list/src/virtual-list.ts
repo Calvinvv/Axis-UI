@@ -24,3 +24,9 @@ export const virtualListProps = {
 } as const
 
 export type VirtualListProps = ExtractPropTypes<typeof virtualListProps>
+
+export type VirtualListAlignment = 'auto' | 'start' | 'center' | 'end'
+
+export interface VirtualListExpose {
+  scrollToIndex: (index: number, alignment?: VirtualListAlignment) => void
+}
