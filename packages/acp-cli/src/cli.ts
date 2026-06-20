@@ -11,8 +11,10 @@ import {
   coreScenarios,
   createOpenCodeTarget,
   findExecutable,
+  LocalBridge,
   ScenarioRunner,
   TargetRegistry,
+  type BridgeMessage,
   type CoreScenarioId,
   type TargetDefinition,
 } from '@axis-ui/acp-harness'
@@ -49,6 +51,9 @@ export async function runCli(
     }
     if (parsed.command === 'replay') {
       return await replayArtifact(parsed.options, io)
+    }
+    if (parsed.command === 'serve') {
+      return await serveBridge(parsed.options, io)
     }
     throw new Error(`Unknown command: ${parsed.command}`)
   } catch (error) {
@@ -191,7 +196,7 @@ async function createRegistry(
   return TargetRegistry.create([definition], [workspaceRoot])
 }
 
-function targetDefinition(targetId: string): TargetDefinition {
+export function targetDefinition(targetId: string): TargetDefinition {
   if (targetId === 'fixture-agent') {
     return {
       id: targetId,
@@ -229,6 +234,72 @@ function targetDefinition(targetId: string): TargetDefinition {
   throw new Error(`Unknown target: ${targetId}`)
 }
 
+export function createScenarioBridgeHandler(): (
+  message: BridgeMessage
+) => Promise<unknown> {
+  return async message => {
+    if (message.type !== 'scenario/run') {
+      throw new Error(`Unsupported bridge operation: ${message.type}`)
+    }
+    if (!Object.hasOwn(coreScenarios, message.scenarioId)) {
+      throw new Error(`Unknown scenario: ${message.scenarioId}`)
+    }
+    if (
+      message.targetId === 'opencode' &&
+      message.scenarioId !== 'normal-prompt-turn'
+    ) {
+      throw new Error('OpenCode is limited to normal-prompt-turn')
+    }
+    const definition = coreScenarios[message.scenarioId as CoreScenarioId]
+    const registry = await createRegistry(
+      message.targetId,
+      resolve(message.workspaceRoot)
+    )
+    return new ScenarioRunner({
+      registry,
+      targetId: message.targetId,
+      workspaceRoot: resolve(message.workspaceRoot),
+      timeoutMs: message.targetId === 'opencode' ? 120_000 : 2_000,
+    }).run(definition)
+  }
+}
+
+async function serveBridge(
+  options: Readonly<Record<string, string>>,
+  io: CliIo
+): Promise<number> {
+  const bridge = new LocalBridge({
+    host: options.host ?? '127.0.0.1',
+    port: parseNonNegativeInteger(options.port, 0),
+    allowedOrigins: [options.origin ?? 'http://127.0.0.1:5173'],
+    token: options.token,
+    onMessage: createScenarioBridgeHandler(),
+  })
+  const address = await bridge.start()
+  io.stdout(
+    JSON.stringify(
+      {
+        url: address.url,
+        token: address.token,
+        origin: options.origin ?? 'http://127.0.0.1:5173',
+      },
+      null,
+      2
+    )
+  )
+  await new Promise<void>(resolveStop => {
+    const stop = (): void => {
+      process.off('SIGINT', stop)
+      process.off('SIGTERM', stop)
+      resolveStop()
+    }
+    process.once('SIGINT', stop)
+    process.once('SIGTERM', stop)
+  })
+  await bridge.stop()
+  return 0
+}
+
 async function writeText(path: string, content: string): Promise<void> {
   await mkdir(dirname(path), { recursive: true })
   await writeFile(path, `${content}\n`, 'utf8')
@@ -242,6 +313,18 @@ function parsePositiveInteger(
   const parsed = Number(value)
   if (!Number.isSafeInteger(parsed) || parsed <= 0) {
     throw new Error(`Expected a positive integer, received: ${value}`)
+  }
+  return parsed
+}
+
+function parseNonNegativeInteger(
+  value: string | undefined,
+  fallback: number
+): number {
+  if (value === undefined) return fallback
+  const parsed = Number(value)
+  if (!Number.isSafeInteger(parsed) || parsed < 0 || parsed > 65_535) {
+    throw new Error(`Expected a valid port, received: ${value}`)
   }
   return parsed
 }
@@ -266,8 +349,10 @@ Usage:
   axis-acp run --target fixture-agent --scenario normal-prompt-turn --workspace .
   axis-acp inspect --target opencode --workspace .
   axis-acp replay --input artifacts/runs/fixture-agent-normal-prompt-turn.axis-acp.json
+  axis-acp serve --origin http://127.0.0.1:5173
 
 Commands:
   run      Execute one of the three fixed scenarios and write JSON + HTML.
   inspect  Initialize a registered target and print capabilities without a model turn.
-  replay   Restore recorded semantic events and verify final state hashes.`
+  replay   Restore recorded semantic events and verify final state hashes.
+  serve    Start the authenticated loopback bridge for the DevTools UI.`

@@ -112,6 +112,22 @@ describe('LocalBridge security boundary', () => {
 
     socket.send(
       JSON.stringify({
+        type: 'scenario/run',
+        requestId: 'arbitrary-args',
+        targetId: 'fixture-agent',
+        scenarioId: 'normal-prompt-turn',
+        workspaceRoot: repositoryRoot,
+        args: ['--execute-arbitrary-command'],
+      })
+    )
+    expect(await nextJson(socket)).toMatchObject({
+      type: 'error',
+      requestId: 'unknown',
+      error: { code: 'BAD_MESSAGE' },
+    })
+
+    socket.send(
+      JSON.stringify({
         type: 'target/start',
         requestId: 'unknown-target',
         targetId: 'shell',

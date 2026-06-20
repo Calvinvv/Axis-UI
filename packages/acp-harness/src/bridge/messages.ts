@@ -12,6 +12,13 @@ export type BridgeMessage =
       readonly requestId: string
       readonly targetHandleId: string
     }
+  | {
+      readonly type: 'scenario/run'
+      readonly requestId: string
+      readonly targetId: string
+      readonly scenarioId: string
+      readonly workspaceRoot: string
+    }
 
 function requireString(value: Record<string, unknown>, key: string): string {
   const field = value[key]
@@ -54,6 +61,26 @@ export function parseBridgeMessage(input: unknown): BridgeMessage {
       type,
       requestId,
       targetHandleId: requireString(value, 'targetHandleId'),
+    }
+  }
+
+  if (type === 'scenario/run') {
+    const allowed = new Set([
+      'type',
+      'requestId',
+      'targetId',
+      'scenarioId',
+      'workspaceRoot',
+    ])
+    if (Object.keys(value).some(key => !allowed.has(key))) {
+      throw new HarnessError('Unknown scenario/run field', 'BAD_MESSAGE')
+    }
+    return {
+      type,
+      requestId,
+      targetId: requireString(value, 'targetId'),
+      scenarioId: requireString(value, 'scenarioId'),
+      workspaceRoot: requireString(value, 'workspaceRoot'),
     }
   }
 
