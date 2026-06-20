@@ -15,7 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "pnpm type-check:node && pnpm type-check:vue",
-    "type-check:node": "pnpm --filter @axis-ui/acp-core run type-check && pnpm --filter @axis-ui/acp-core run build && pnpm -r --filter @axis-ui/acp-harness --filter @axis-ui/acp-cli --filter @axis-ui/acp-fixture-agents run type-check",
+    "type-check:node": "pnpm --filter @axis-ui/acp-core run type-check && pnpm --filter @axis-ui/acp-core run build && pnpm --filter @axis-ui/acp-harness run type-check && pnpm --filter @axis-ui/acp-harness run build && pnpm -r --filter @axis-ui/acp-cli --filter @axis-ui/acp-fixture-agents run type-check",
     "type-check:vue": "vue-tsc --noEmit && pnpm --filter @axis-ui/acp-devtools run type-check",
     "test": "vitest",
     "test:unit": "vitest run --project axis-ui --project acp-node --project acp-devtools",
