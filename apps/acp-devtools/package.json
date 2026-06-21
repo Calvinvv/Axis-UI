@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm type-check",
+    "dev": "vite",
+    "build": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
