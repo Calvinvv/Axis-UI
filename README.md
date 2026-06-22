@@ -23,6 +23,46 @@
 - 🏗️ **工程化规范**: 采用 Monorepo 架构，使用 Changesets 管理版本
 - 🧪 **质量保障**: 完善的测试流程（单元测试 + 冒烟测试）
 
+## Axis ACP DevKit（私有工作区）
+
+仓库同时包含一套面向 Coding Agent 开发者的 ACP v1 测试与调试工具链。它不会随 `axis-ui` 发布，核心能力可在无浏览器环境运行：安全启动已注册的 stdio Agent、记录 Raw JSON-RPC 与归一化事件、执行三个固定场景、生成诊断与单次 JSON/HTML 报告，并从脱敏 Transcript 离线恢复状态。
+
+```bash
+# 构建全部工作区
+pnpm build:all
+
+# 确定性场景 + JSON/HTML 证据
+node packages/acp-cli/dist/main.js run \
+  --target fixture-agent \
+  --scenario cancel-during-permission \
+  --workspace . \
+  --output artifacts/runs
+
+# 离线回放并校验 State Hash
+node packages/acp-cli/dist/main.js replay \
+  --input artifacts/runs/fixture-agent-cancel-during-permission.axis-acp.json
+
+# 检查本机已安装的真实 OpenCode ACP Agent
+node packages/acp-cli/dist/main.js inspect --target opencode --workspace .
+```
+
+启动可视化 Workbench 时，Node Host 与浏览器分开运行。`serve` 只绑定 loopback，使用高熵临时 Token 和 Origin 校验；浏览器只能发送已注册的 Target ID、固定 Scenario ID 与 Workspace，不能提交可执行命令或参数。
+
+```bash
+# 终端 1：复制输出的 ws URL 与 Token
+node packages/acp-cli/dist/main.js serve --origin http://127.0.0.1:5173
+
+# 终端 2
+pnpm --filter @axis-ui/acp-devtools dev
+
+# 打开：
+# http://127.0.0.1:5173/?bridge=<encoded-ws-url>&token=<token>&workspace=<encoded-absolute-path>
+```
+
+范围边界：当前只支持 ACP v1、stdio、三个固定 Scenario 和单次报告；结果是 Axis 场景集内的工程证据，不是 ACP 官方认证，也不评价模型代码质量。
+
+录制的本地闭环演示：[`docs/public/demos/axis-acp-devtools.webm`](./docs/public/demos/axis-acp-devtools.webm)。视频展示鉴权 Bridge 场景运行、Run Evidence 切换和 Diagnostic→Sequence 跳转，不包含 Token 或地址栏。
+
 ## 📦 安装
 
 ```bash
