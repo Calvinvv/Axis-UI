@@ -41,7 +41,8 @@ export default defineConfig({
         },
       },
       {
-        plugins: [vue()],
+        plugins: [vue(), vueJsx()],
+        resolve: { alias: aliases },
         test: {
           name: 'acp-devtools',
           environment: 'happy-dom',
@@ -77,7 +78,8 @@ export default defineConfig({
         },
       },
       {
-        plugins: [vue()],
+        plugins: [vue(), vueJsx()],
+        resolve: { alias: aliases },
         test: {
           name: 'browser',
           include: ['apps/acp-devtools/test/browser/**/*.browser.spec.ts'],
