@@ -38,25 +38,25 @@
 
 ### Props
 
-| 参数 | 说明 | 类型 | 默认值 |
-| --- | --- | --- | --- |
-| items | 列表数据 | `any[]` | `[]` |
-| size | 每项的固定高度（px）。传 > 0 启用固定高度模式 | `number` | `0` |
-| estimatedSize | 预估高度（px）。`size` 为 0 时传 > 0 启用动态高度模式 | `number` | `0` |
-| remain | 可见区域显示的项数 | `number` | `8` |
+| 参数          | 说明                                                  | 类型     | 默认值 |
+| ------------- | ----------------------------------------------------- | -------- | ------ |
+| items         | 列表数据                                              | `any[]`  | `[]`   |
+| size          | 每项的固定高度（px）。传 > 0 启用固定高度模式         | `number` | `0`    |
+| estimatedSize | 预估高度（px）。`size` 为 0 时传 > 0 启用动态高度模式 | `number` | `0`    |
+| remain        | 可见区域显示的项数                                    | `number` | `8`    |
 
 ### 模式判断
 
-| `size` | `estimatedSize` | 模式 |
-| --- | --- | --- |
-| > 0 | 任意 | 固定高度（向后兼容） |
-| 0 | > 0 | 动态高度 |
-| 0 | 0 | 回退到默认 32px |
+| `size` | `estimatedSize` | 模式                 |
+| ------ | --------------- | -------------------- |
+| > 0    | 任意            | 固定高度（向后兼容） |
+| 0      | > 0             | 动态高度             |
+| 0      | 0               | 回退到默认 32px      |
 
 ### Slots
 
-| 插槽名 | 说明 | 参数 |
-| --- | --- | --- |
+| 插槽名  | 说明             | 参数            |
+| ------- | ---------------- | --------------- |
 | default | 自定义列表项内容 | `{ node: any }` |
 
 ## 使用示例
@@ -102,6 +102,31 @@ const items = Array.from({ length: 10000 }, (_, i) => ({
 }))
 </script>
 ```
+
+### 定位到指定索引
+
+组件实例暴露 `scrollToIndex(index, alignment?)`，用于日志、Trace 等大列表从业务标识映射到数组索引后定位。`alignment` 支持 `auto`、`start`、`center` 和 `end`，默认 `auto`：条目已完整可见时不滚动。
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import type { VirtualListExpose } from 'axis-ui'
+
+const listRef = ref<VirtualListExpose>()
+
+function revealDiagnostic(index: number) {
+  listRef.value?.scrollToIndex(index, 'center')
+}
+</script>
+
+<template>
+  <AxVirtualList ref="listRef" :items="items" :size="32" :remain="12">
+    <template #default="{ node }">{{ node.label }}</template>
+  </AxVirtualList>
+</template>
+```
+
+`scrollToIndex` 只处理通用列表坐标，不理解 ACP Sequence。DevTools 应先用自己的 Trace/Event 索引把 `sequence` 转成当前筛选结果中的数组下标，再调用组件方法；这样协议语义不会进入 Axis-UI。
 
 ## 注意事项
 

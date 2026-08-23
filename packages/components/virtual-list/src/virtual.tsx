@@ -8,12 +8,12 @@ import {
   ref,
   watch,
 } from 'vue'
-import { virtualListProps } from './virtual-list'
+import { virtualListProps, type VirtualListAlignment } from './virtual-list'
 
 export default defineComponent({
   name: 'AxVirtualList',
   props: virtualListProps,
-  setup(props, { slots }) {
+  setup(props, { slots, expose }) {
     const bem = createNamespace('vl')
     const wrapperRef = ref<HTMLElement>()
     const barRef = ref<HTMLElement>()
@@ -24,7 +24,11 @@ export default defineComponent({
     // ========================================
     const isFixedMode = computed(() => props.size > 0)
     const itemSize = computed(() =>
-      props.size > 0 ? props.size : props.estimatedSize > 0 ? props.estimatedSize : 32,
+      props.size > 0
+        ? props.size
+        : props.estimatedSize > 0
+          ? props.estimatedSize
+          : 32
     )
 
     // ========================================
@@ -85,10 +89,12 @@ export default defineComponent({
     })
 
     const prev = computed(() => Math.min(props.remain, state.start))
-    const next = computed(() => Math.min(props.remain, props.items.length - state.end))
+    const next = computed(() =>
+      Math.min(props.remain, props.items.length - state.end)
+    )
 
     const visibleData = computed(() =>
-      props.items.slice(state.start - prev.value, state.end + next.value),
+      props.items.slice(state.start - prev.value, state.end + next.value)
     )
 
     const offsetY = ref(0)
@@ -121,6 +127,42 @@ export default defineComponent({
       }
     }
 
+    function scrollToIndex(
+      requestedIndex: number,
+      alignment: VirtualListAlignment = 'auto'
+    ): void {
+      const wrapper = wrapperRef.value
+      if (!wrapper || props.items.length === 0) return
+      const index = Math.min(
+        props.items.length - 1,
+        Math.max(0, Math.trunc(requestedIndex))
+      )
+      const itemTop = getItemOffset(index)
+      const itemBottom = itemTop + getItemHeight(index)
+      const viewportHeight = props.remain * itemSize.value
+      const viewportTop = wrapper.scrollTop
+      const viewportBottom = viewportTop + viewportHeight
+      let nextScrollTop = itemTop
+
+      if (alignment === 'auto') {
+        if (itemTop >= viewportTop && itemBottom <= viewportBottom) return
+        nextScrollTop =
+          itemTop < viewportTop ? itemTop : itemBottom - viewportHeight
+      } else if (alignment === 'center') {
+        nextScrollTop = itemTop - (viewportHeight - getItemHeight(index)) / 2
+      } else if (alignment === 'end') {
+        nextScrollTop = itemBottom - viewportHeight
+      }
+
+      wrapper.scrollTop = Math.min(
+        Math.max(0, getTotalHeight() - viewportHeight),
+        Math.max(0, nextScrollTop)
+      )
+      handleScroll()
+    }
+
+    expose({ scrollToIndex })
+
     // ========================================
     // 容器初始化
     // ========================================
@@ -136,18 +178,21 @@ export default defineComponent({
       }
     }
 
-    watch(() => props.items, () => {
-      // 清理过期缓存
-      if (!isFixedMode.value) {
-        // 删除超出新长度的缓存
-        for (const key of measuredHeights.keys()) {
-          if (key >= props.items.length) {
-            measuredHeights.delete(key)
+    watch(
+      () => props.items,
+      () => {
+        // 清理过期缓存
+        if (!isFixedMode.value) {
+          // 删除超出新长度的缓存
+          for (const key of measuredHeights.keys()) {
+            if (key >= props.items.length) {
+              measuredHeights.delete(key)
+            }
           }
         }
+        initWrapper()
       }
-      initWrapper()
-    })
+    )
 
     watch(() => [props.size, props.estimatedSize, props.remain], initWrapper)
 

@@ -39,6 +39,11 @@
     "**/__tests__",
     "dist/**",
     "docs/**",
+    "apps/acp-devtools/**",
+    "fixtures/acp-agents/**",
+    "packages/acp-core/**",
+    "packages/acp-harness/**",
+    "packages/acp-cli/**",
     "**/dist/**"
   ]
 }

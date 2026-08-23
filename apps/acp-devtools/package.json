@@ -1,0 +1,16 @@
+{
+  "name": "@axis-ui/acp-devtools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "type-check": "vue-tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@axis-ui/acp-core": "workspace:*",
+    "axis-ui": "workspace:*",
+    "vue": "^3.5.22"
+  }
+}

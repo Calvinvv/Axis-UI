@@ -34,6 +34,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install Chromium for Vitest Browser Mode
+        run: pnpm exec playwright install --with-deps chromium
+
       # ... (lint, type-check, test:ci, codecov... 保持不变)
       - name: Run linting
         run: pnpm lint
