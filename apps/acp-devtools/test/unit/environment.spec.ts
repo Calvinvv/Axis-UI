@@ -52,6 +52,9 @@ describe('ACP DevTools workbench', () => {
   it('converges the real agent launcher to its supported scenario', async () => {
     const wrapper = mount(App)
     await flushPromises()
+    await vi.waitFor(() =>
+      expect(wrapper.find('#scenario-select').exists()).toBe(true)
+    )
 
     await wrapper.get('#scenario-select').setValue('cancel-during-permission')
     await wrapper.get('#target-select').setValue('opencode')
