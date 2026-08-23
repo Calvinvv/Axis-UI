@@ -1,6 +1,6 @@
 {
   "name": "@axis-ui/theme-chalk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Axis-UI default theme (SCSS source + compiled CSS)",
   "author": "韦贺文",
   "license": "MIT",
